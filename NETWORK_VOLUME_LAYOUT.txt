@@ -1,0 +1,59 @@
+RunPod Serverless mount point:
+  /runpod-volume
+
+激NSFW特化レイアウト（実ファイル名）:
+
+  /runpod-volume/models/
+  ├── diffusion_models/
+  │   ├── wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors
+  │   └── wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors
+  ├── text_encoders/
+  │   └── umt5_xxl_fp8_e4m3fn_scaled.safetensors
+  ├── vae/
+  │   └── wan_2.1_vae.safetensors
+  ├── clip_vision/
+  │   └── clip_vision_h.safetensors
+  └── loras/
+      ├── NSFW-22-H-e8.safetensors                 ← CubeyAI General NSFW HIGH
+      ├── NSFW-22-L-e8.safetensors                 ← CubeyAI General NSFW LOW
+      ├── wan2.2-i2v-high-sex-smashcut-v1.0.safetensors
+      ├── W22_NSFW_Posing_Nude_i2v_HN_v2.safetensors
+      ├── W22_NSFW_Posing_Nude_i2v_LN_v2.safetensors
+      ├── cxy_kiss_v02_high_noise.safetensors      (optional)
+      └── cxy_kiss_v02_low_noise.safetensors       (optional)
+
+Source (official / documented):
+- Base / TE / VAE / clip_vision:
+  https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged
+  I2V 14B High/Low: split_files/diffusion_models/
+    wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors
+    wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors
+    (VRAMに余裕があれば fp16 版:
+     wan2.2_i2v_high_noise_14B_fp16.safetensors
+     wan2.2_i2v_low_noise_14B_fp16.safetensors)
+  Text encoder: split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors
+  VAE (14B必須): split_files/vae/wan_2.1_vae.safetensors
+  CLIP Vision (I2V): Comfy-Org Wan 2.1/2.2 pack の clip_vision_h.safetensors
+
+- General NSFW LoRA (CubeyAI, Civitai 1307155):
+  NSFW-22-H-e8.safetensors
+  NSFW-22-L-e8.safetensors
+  旧版: 22-nsfw-HIGH-e6.safetensors
+  HF mirror: lopi999/Wan2.2-I2V_General-NSFW-LoRA
+  Trigger: nsfwsks
+
+- Pose / anatomy 代替（仮名 Hardcore_Sex_Poses / Anatomy_Boost の実ファイル）:
+  wan2.2-i2v-high-sex-smashcut-v1.0.safetensors
+  W22_NSFW_Posing_Nude_i2v_HN_v2.safetensors
+  W22_NSFW_Posing_Nude_i2v_LN_v2.safetensors
+
+- Kiss (optional):
+  cxy_kiss_v02_high_noise.safetensors
+  cxy_kiss_v02_low_noise.safetensors
+
+Notes:
+- High Noise と Low Noise の両方に NSFW LoRA を掛ける
+- 推奨強度: 汎用NSFW 0.85〜1.20 / 体位特化 0.70〜1.00
+- プロンプトは最初から露骨に書く
+- 複数LoRA同時積み推奨
+- Serverless では fp8_scaled を推奨（48GBでも余裕が出る）

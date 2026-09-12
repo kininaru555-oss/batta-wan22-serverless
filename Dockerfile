@@ -1,14 +1,15 @@
-# Batta Wan2.2 Serverless - 激NSFW特化 ComfyUI base
-#
-# Official RunPod worker-comfyui base image.
-# Models are intentionally NOT baked into the image.
-# Attach a RunPod Network Volume and place models under:
-#   /runpod-volume/models/...
-#　
 FROM runpod/worker-comfyui:5.10.0-base
-
-# Optional: enable useful diagnostics for Network Volume model discovery.
 ENV NETWORK_VOLUME_DEBUG=true
 
-# The official worker-comfyui image already contains the RunPod serverless
-# handler and ComfyUI startup logic, so no custom CMD is required here.
+RUN python3 - <<'PY'
+from pathlib import Path
+p = Path("/comfyui/extra_model_paths.yaml")
+t = p.read_text() if p.exists() else ""
+add = """
+        diffusion_models: models/diffusion_models/
+        text_encoders: models/text_encoders/
+"""
+if "diffusion_models:" not in t:
+    p.write_text(t.rstrip() + add + "\n")
+print(p.read_text())
+PY

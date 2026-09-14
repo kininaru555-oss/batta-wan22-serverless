@@ -2,28 +2,42 @@ FROM runpod/worker-comfyui:5.10.0-base
 
 ENV NETWORK_VOLUME_DEBUG=true
 
-# Wan2.2用の追加モデルパス
+RUN cat > /comfyui/extra_model_paths.yaml <<'YAML'
+runpod_worker_comfy:
+  base_path: /runpod-volume
+
+  checkpoints: models/checkpoints/
+  clip: models/clip/
+  clip_vision: models/clip_vision/
+  configs: models/configs/
+  controlnet: models/controlnet/
+  embeddings: models/embeddings/
+  loras: models/loras/
+  upscale_models: models/upscale_models/
+  vae: models/vae/
+  unet: models/unet/
+  diffusion_models: models/diffusion_models/
+  text_encoders: models/text_encoders/
+YAML
+
 RUN python3 - <<'PY'
-from pathlib import Path
+import yaml
 
-p = Path("/comfyui/extra_model_paths.yaml")
-t = p.read_text() if p.exists() else ""
+path = "/comfyui/extra_model_paths.yaml"
 
-add = """
-        diffusion_models: models/diffusion_models/
-        text_encoders: models/text_encoders/
-"""
+with open(path, "r", encoding="utf-8") as f:
+    data = yaml.safe_load(f)
 
-if "diffusion_models:" not in t:
-    p.write_text(t.rstrip() + add + "\n")
+print(data)
 
-print(p.read_text())
+assert "runpod_worker_comfy" in data
+assert data["runpod_worker_comfy"]["base_path"] == "/runpod-volume"
+
+print("extra_model_paths.yaml: OK")
 PY
 
-# worker-comfyui標準の起動スクリプトを退避
 RUN cp /start.sh /start-base.sh
 
-# 永続ログ付きラッパー
 COPY scripts/start_with_persistent_logs.sh /start_with_persistent_logs.sh
 
 RUN chmod +x /start_with_persistent_logs.sh
